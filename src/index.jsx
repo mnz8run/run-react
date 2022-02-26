@@ -47,16 +47,13 @@ function createDom(fiber) {
   console.log('🚀 ~ file: index.jsx ~ line 45 ~ createDom ~ createDom');
   const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(fiber.type);
 
-  Object.keys(fiber.props)
-    .filter(isProperty)
-    .forEach((name) => {
-      dom[name] = fiber.props[name];
-    });
+  updateDom(dom, {}, fiber.props);
+
   return dom;
 }
 
 const isEvent = (key) => key.startsWith('on');
-const isProperty = (key) => key !== 'children' && isEvent(key);
+const isProperty = (key) => key !== 'children' && !isEvent(key);
 const isNew = (prev, next) => (key) => prev[key] !== next[key];
 const isGone = (next) => (key) => !(key in next);
 function updateDom(dom, prevProps, nextProps) {
@@ -87,7 +84,7 @@ function updateDom(dom, prevProps, nextProps) {
     .filter(isEvent)
     .filter(isNew(prevProps, nextProps))
     .forEach((name) => {
-      const eventType = name.toLocaleLowerCase().substring(2);
+      const eventType = name.toLowerCase().substring(2);
       dom.addEventListener(eventType, nextProps[name]);
     });
 }
@@ -211,9 +208,12 @@ function performUnitOfWork(fiber) {
 function reconcileChildren(wipFiber, elements) {
   console.log('🚀 ~ file: index.jsx ~ line 154 ~ reconcileChildren ~ reconcileChildren');
   let index = 0;
-  let oldFiber = wipFiber.alternate?.child;
+  // let oldFiber = wipFiber.alternate && wipFiber.alternate.child; // null
+  let oldFiber = wipFiber.alternate?.child; // undefined
+  console.log('🚀 ~ file: index.jsx ~ line 212 ~ reconcileChildren ~ oldFiber', oldFiber);
   let prevSibling = null;
-  while (index < elements.length || oldFiber !== null) {
+
+  while (index < elements.length || oldFiber !== undefined) {
     const element = elements[index];
     let newFiber = null;
     const sameType = oldFiber && element && element.type === oldFiber.type;
