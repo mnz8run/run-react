@@ -12,6 +12,18 @@
 // const container = document.getElementById("root")
 // ReactDOM.render(element, container)
 
+// 下一个工作单元
+let nextUnitOfWork = null;
+// work in progress root
+let wipRoot = null;
+// 上次提交到 DOM 节点的 fiber 树
+let currentRoot = null;
+// 保存要移除的 dom 节点
+let deletions = null;
+// work in progress fiber
+let wipFiber = null;
+let hookIndex = null;
+
 /**
  * 用 “element” 来代指 React Element， 用 “node” 来代指 DOM Element
  */
@@ -36,17 +48,6 @@ function createTextElement(text) {
       children: [],
     },
   };
-}
-
-/**
- * 创建虚拟DOM
- */
-function createDom(fiber) {
-  const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(fiber.type);
-
-  updateDom(dom, {}, fiber.props);
-
-  return dom;
 }
 
 const isEvent = (key) => key.startsWith('on');
@@ -84,6 +85,17 @@ function updateDom(dom, prevProps, nextProps) {
       const eventType = name.toLowerCase().substring(2);
       dom.addEventListener(eventType, nextProps[name]);
     });
+}
+
+/**
+ * 创建虚拟DOM
+ */
+function createDom(fiber) {
+  const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(fiber.type);
+
+  updateDom(dom, {}, fiber.props);
+
+  return dom;
 }
 
 // 操作真实DOM
@@ -127,50 +139,6 @@ function commitDeletion(fiber, domParent) {
   }
 }
 
-// step2 The render Function
-function render(element, container) {
-  // nextUnitOfWork 置为 fiber 树的根节点
-  wipRoot = {
-    dom: container,
-    props: {
-      children: [element],
-    },
-    alternate: currentRoot,
-  };
-  deletions = [];
-  nextUnitOfWork = wipRoot;
-}
-
-// 下一个工作单元
-let nextUnitOfWork = null;
-// work in progress root
-let wipRoot = null;
-// 上次提交到 DOM 节点的 fiber 树
-let currentRoot = null;
-// 保存要移除的 dom 节点
-let deletions = null;
-
-/**
- * 并发模式  Concurrent Mode
- * 代替了最开始的 render递归
- */
-
-function workLoop(deadline) {
-  let shouldYield = false;
-  while (nextUnitOfWork && !shouldYield) {
-    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
-    shouldYield = deadline.timeRemaining() < 1;
-  }
-
-  if (!nextUnitOfWork && wipRoot) {
-    commitRoot();
-  }
-
-  requestIdleCallback(workLoop);
-}
-
-requestIdleCallback(workLoop);
-
 /**
  * Fiber 新一代的虚拟DOM
  *
@@ -204,8 +172,39 @@ function performUnitOfWork(fiber) {
 }
 
 function updateFunctionComponent(fiber) {
+  wipFiber = fiber;
+  hookIndex = 0;
+  wipFiber.hooks = [];
   const children = [fiber.type(fiber.props)];
   reconcileChildren(fiber, children);
+}
+
+function useState(initial) {
+  const oldHook = wipFiber?.alternate?.hooks?.[hookIndex];
+  const hook = {
+    state: oldHook?.state ?? initial,
+    queue: [],
+  };
+
+  const actions = oldHook?.queue ?? [];
+  actions.forEach((action) => {
+    hook.state = action(hook.state);
+  });
+
+  const setState = (action) => {
+    hook.queue.push(action);
+    wipRoot = {
+      dom: currentRoot.dom,
+      props: currentRoot.props,
+      alternate: currentRoot,
+    };
+    nextUnitOfWork = wipRoot;
+    deletions = [];
+  };
+
+  wipFiber.hooks.push(hook);
+  hookIndex++;
+  return [hook.state, setState];
 }
 
 function updateHostComponent(fiber) {
@@ -227,7 +226,7 @@ function reconcileChildren(wipFiber, elements) {
   while (index < elements.length || oldFiber !== undefined) {
     const element = elements[index];
     let newFiber = null;
-    const sameType = oldFiber && element && element.type === oldFiber.type;
+    const sameType = element?.type === oldFiber?.type;
 
     if (sameType) {
       // update the node
@@ -272,18 +271,54 @@ function reconcileChildren(wipFiber, elements) {
   }
 }
 
+// step2 The render Function
+function render(element, container) {
+  // nextUnitOfWork 置为 fiber 树的根节点
+  wipRoot = {
+    dom: container,
+    props: {
+      children: [element],
+    },
+    alternate: currentRoot,
+  };
+  deletions = [];
+  nextUnitOfWork = wipRoot;
+}
+
+/**
+ * 并发模式  Concurrent Mode
+ * 代替了最开始的 render递归
+ */
+function workLoop(deadline) {
+  let shouldYield = false;
+  while (nextUnitOfWork && !shouldYield) {
+    nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
+    shouldYield = deadline.timeRemaining() < 1;
+  }
+
+  if (!nextUnitOfWork && wipRoot) {
+    commitRoot();
+  }
+
+  requestIdleCallback(workLoop);
+}
+
+requestIdleCallback(workLoop);
+
 const Didact = {
   createElement,
   render,
+  useState,
 };
 
 /** @jsx Didact.createElement */
 const container = document.getElementById('root');
 
-function App(props) {
-  return <h1>Hi {props.name}</h1>;
+function Counter() {
+  const [state, setState] = Didact.useState(1);
+  return <h1 onClick={() => setState((c) => c + 1)}>Count: {state}</h1>;
 }
 
-const element = <App name="foo" />;
+const element = <Counter />;
 
 Didact.render(element, container);
