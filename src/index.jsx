@@ -17,7 +17,6 @@
  */
 
 function createElement(type, props, ...children) {
-  console.log('🚀 ~ file: index.jsx ~ line 20 ~ createElement ~ createElement');
   return {
     type,
     props: {
@@ -30,7 +29,6 @@ function createElement(type, props, ...children) {
 }
 
 function createTextElement(text) {
-  console.log('🚀 ~ file: index.jsx ~ line 33 ~ createTextElement ~ createTextElement');
   return {
     type: 'TEXT_ELEMENT',
     props: {
@@ -44,7 +42,6 @@ function createTextElement(text) {
  * 创建虚拟DOM
  */
 function createDom(fiber) {
-  console.log('🚀 ~ file: index.jsx ~ line 45 ~ createDom ~ createDom');
   const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(fiber.type);
 
   updateDom(dom, {}, fiber.props);
@@ -91,7 +88,6 @@ function updateDom(dom, prevProps, nextProps) {
 
 // 操作真实DOM
 function commitRoot() {
-  console.log('🚀 ~ file: index.jsx ~ line 57 ~ commitRoot ~ commitRoot');
   deletions.forEach(commitWork);
   commitWork(wipRoot.child);
 
@@ -101,27 +97,38 @@ function commitRoot() {
 
 // add nodes to dom 递归地将所有节点添加到 dom 上
 function commitWork(fiber) {
-  console.log('🚀 ~ file: index.jsx ~ line 65 ~ commitWork ~ commitWork');
   if (!fiber) {
     return;
   }
-  const domParent = fiber.parent.dom;
+
+  let domParentFiber = fiber.parent;
+  while (!domParentFiber.dom) {
+    domParentFiber = domParentFiber.parent;
+  }
+  const domParent = domParentFiber.dom;
 
   if (fiber.effectTag === 'PLACEMENT' && fiber.dom !== null) {
     domParent.appendChild(fiber.dom);
   } else if (fiber.effectTag === 'UPDATE' && fiber.dom !== null) {
     updateDom(fiber.dom, fiber.alternate.props, fiber.props);
   } else if (fiber.effectTag === 'DELETION') {
-    domParent.removeChild(fiber.dom);
+    commitDeletion(fiber, domParent);
   }
 
   commitWork(fiber.child);
   commitWork(fiber.sibling);
 }
 
+function commitDeletion(fiber, domParent) {
+  if (fiber.dom) {
+    domParent.removeChild(fiber.dom);
+  } else {
+    commitDeletion(fiber.child, domParent);
+  }
+}
+
 // step2 The render Function
 function render(element, container) {
-  console.log('🚀 ~ file: index.jsx ~ line 78 ~ render ~ render');
   // nextUnitOfWork 置为 fiber 树的根节点
   wipRoot = {
     dom: container,
@@ -147,12 +154,8 @@ let deletions = null;
  * 并发模式  Concurrent Mode
  * 代替了最开始的 render递归
  */
-let a = 1;
+
 function workLoop(deadline) {
-  if (a === 1) {
-    console.log('🚀 ~ file: index.jsx ~ line 102 ~ workLoop ~ workLoop');
-    a++;
-  }
   let shouldYield = false;
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
@@ -174,11 +177,11 @@ requestIdleCallback(workLoop);
  * 执行工作单元 对 Fiber 进行操作
  */
 function performUnitOfWork(fiber) {
-  console.log('🚀 ~ file: index.jsx ~ line 123 ~ performUnitOfWork ~ performUnitOfWork');
-  // add dom node
-  if (!fiber.dom) {
-    // 创建fiber对应的DOM
-    fiber.dom = createDom(fiber);
+  const isFunctionComponent = fiber.type instanceof Function;
+  if (isFunctionComponent) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateHostComponent(fiber);
   }
 
   // 用户就有可能看到渲染未完全的 UI
@@ -186,10 +189,6 @@ function performUnitOfWork(fiber) {
   //   // 添加到父节点     代替了 container.appendChild(dom);
   //   fiber.parent.dom.appendChild(fiber.dom);
   // }
-
-  const elements = fiber.props.children;
-
-  reconcileChildren(fiber, elements);
 
   // return next unit of work
   if (fiber.child) {
@@ -204,13 +203,25 @@ function performUnitOfWork(fiber) {
   }
 }
 
+function updateFunctionComponent(fiber) {
+  const children = [fiber.type(fiber.props)];
+  reconcileChildren(fiber, children);
+}
+
+function updateHostComponent(fiber) {
+  // add dom node
+  if (!fiber.dom) {
+    // 创建fiber对应的DOM
+    fiber.dom = createDom(fiber);
+  }
+  reconcileChildren(fiber, fiber.props.children);
+}
+
 // create new fibers
 function reconcileChildren(wipFiber, elements) {
-  console.log('🚀 ~ file: index.jsx ~ line 154 ~ reconcileChildren ~ reconcileChildren');
   let index = 0;
   // let oldFiber = wipFiber.alternate && wipFiber.alternate.child; // null
   let oldFiber = wipFiber.alternate?.child; // undefined
-  console.log('🚀 ~ file: index.jsx ~ line 212 ~ reconcileChildren ~ oldFiber', oldFiber);
   let prevSibling = null;
 
   while (index < elements.length || oldFiber !== undefined) {
@@ -269,11 +280,10 @@ const Didact = {
 /** @jsx Didact.createElement */
 const container = document.getElementById('root');
 
-const element = (
-  <div>
-    <h1>Hello World</h1>
-    <h2>from Didact</h2>
-  </div>
-);
+function App(props) {
+  return <h1>Hi {props.name}</h1>;
+}
+
+const element = <App name="foo" />;
 
 Didact.render(element, container);
