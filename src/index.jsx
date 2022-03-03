@@ -16,115 +16,20 @@
  * 用 “element” 来代指 React Element， 用 “node” 来代指 DOM Element
  */
 
-function createElement(type, props, ...children) {
-  console.log('🚀 ~ file: index.jsx ~ line 20 ~ createElement ~ createElement');
-  return {
-    type,
-    props: {
-      ...props,
-      children: children.map((child) => {
-        return typeof child === 'object' ? child : createTextElement(child);
-      }),
-    },
-  };
-}
-
-function createTextElement(text) {
-  console.log('🚀 ~ file: index.jsx ~ line 33 ~ createTextElement ~ createTextElement');
-  return {
-    type: 'TEXT_ELEMENT',
-    props: {
-      nodeValue: text,
-      children: [],
-    },
-  };
-}
-
-/**
- * 创建虚拟DOM
- */
-function createDom(fiber) {
-  console.log('🚀 ~ file: index.jsx ~ line 45 ~ createDom ~ createDom');
-  const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(fiber.type);
-
-  Object.keys(fiber.props)
-    .filter(isProperty)
-    .forEach((name) => {
-      dom[name] = fiber.props[name];
-    });
-  return dom;
-}
-
-const isEvent = (key) => key.startsWith('on');
-const isProperty = (key) => key !== 'children' && isEvent(key);
-const isNew = (prev, next) => (key) => prev[key] !== next[key];
-const isGone = (next) => (key) => !(key in next);
-function updateDom(dom, prevProps, nextProps) {
-  // Remove old or changed event listeners
-  Object.keys(prevProps)
-    .filter(isEvent)
-    .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
-    .forEach((name) => {
-      const eventType = name.toLocaleLowerCase().substring(2);
-      dom.removeEventListener(eventType, prevProps[name]);
-    });
-  // Remove old properties
-  Object.keys(prevProps)
-    .filter(isProperty)
-    .filter(isGone(nextProps))
-    .forEach((name) => {
-      dom[name] = '';
-    });
-  // Set new or changed properties
-  Object.keys(nextProps)
-    .filter(isProperty)
-    .filter(isNew(prevProps, nextProps))
-    .forEach((name) => {
-      dom[name] = nextProps[name];
-    });
-  // Add event listeners
-  Object.keys(nextProps)
-    .filter(isEvent)
-    .filter(isNew(prevProps, nextProps))
-    .forEach((name) => {
-      const eventType = name.toLocaleLowerCase().substring(2);
-      dom.addEventListener(eventType, nextProps[name]);
-    });
-}
-
-// 操作真实DOM
-function commitRoot() {
-  console.log('🚀 ~ file: index.jsx ~ line 57 ~ commitRoot ~ commitRoot');
-  deletions.forEach(commitWork);
-  commitWork(wipRoot.child);
-
-  currentRoot = wipRoot;
-  wipRoot = null;
-}
-
-// add nodes to dom 递归地将所有节点添加到 dom 上
-function commitWork(fiber) {
-  console.log('🚀 ~ file: index.jsx ~ line 65 ~ commitWork ~ commitWork');
-  if (!fiber) {
-    return;
-  }
-  const domParent = fiber.parent.dom;
-
-  if (fiber.effectTag === 'PLACEMENT' && fiber.dom !== null) {
-    domParent.appendChild(fiber.dom);
-  } else if (fiber.effectTag === 'UPDATE' && fiber.dom !== null) {
-    updateDom(fiber.dom, fiber.alternate.props, fiber.props);
-  } else if (fiber.effectTag === 'DELETION') {
-    domParent.removeChild(fiber.dom);
-  }
-
-  commitWork(fiber.child);
-  commitWork(fiber.sibling);
-}
+// 下一个工作单元
+let nextUnitOfWork = null;
+// work in progress root
+let wipRoot = null;
+// 上次提交到 DOM 节点的 fiber 树
+let currentRoot = null;
+// 保存要移除的 dom 节点
+let deletions = null;
+// work in progress fiber
+let wipFiber = null;
+let hookIndex = null;
 
 // step2 The render Function
 function render(element, container) {
-  console.log('🚀 ~ file: index.jsx ~ line 78 ~ render ~ render');
   // nextUnitOfWork 置为 fiber 树的根节点
   wipRoot = {
     dom: container,
@@ -137,31 +42,18 @@ function render(element, container) {
   nextUnitOfWork = wipRoot;
 }
 
-// 下一个工作单元
-let nextUnitOfWork = null;
-// work in progress root
-let wipRoot = null;
-// 上次提交到 DOM 节点的 fiber 树
-let currentRoot = null;
-// 保存要移除的 dom 节点
-let deletions = null;
-
 /**
  * 并发模式  Concurrent Mode
  * 代替了最开始的 render递归
  */
-let a = 1;
 function workLoop(deadline) {
-  if (a === 1) {
-    console.log('🚀 ~ file: index.jsx ~ line 102 ~ workLoop ~ workLoop');
-    a++;
-  }
   let shouldYield = false;
   while (nextUnitOfWork && !shouldYield) {
     nextUnitOfWork = performUnitOfWork(nextUnitOfWork);
     shouldYield = deadline.timeRemaining() < 1;
   }
 
+  // 没有下个任务（next unit of work 为 undefined） 整颗树的变更提交（commit）到真实 DOM 上
   if (!nextUnitOfWork && wipRoot) {
     commitRoot();
   }
@@ -172,16 +64,17 @@ function workLoop(deadline) {
 requestIdleCallback(workLoop);
 
 /**
- * Fiber 新一代的虚拟DOM
- *
- * 执行工作单元 对 Fiber 进行操作
+ * -------------------------------- 工作单元执行 --------------------------------
+ * 工作单元执行并返回下一个工作单元
+ * 区分函数组件、类组件
+ * 对 Fiber 进行操作
  */
 function performUnitOfWork(fiber) {
-  console.log('🚀 ~ file: index.jsx ~ line 123 ~ performUnitOfWork ~ performUnitOfWork');
-  // add dom node
-  if (!fiber.dom) {
-    // 创建fiber对应的DOM
-    fiber.dom = createDom(fiber);
+  const isFunctionComponent = fiber.type instanceof Function;
+  if (isFunctionComponent) {
+    updateFunctionComponent(fiber);
+  } else {
+    updateHostComponent(fiber);
   }
 
   // 用户就有可能看到渲染未完全的 UI
@@ -189,10 +82,6 @@ function performUnitOfWork(fiber) {
   //   // 添加到父节点     代替了 container.appendChild(dom);
   //   fiber.parent.dom.appendChild(fiber.dom);
   // }
-
-  const elements = fiber.props.children;
-
-  reconcileChildren(fiber, elements);
 
   // return next unit of work
   if (fiber.child) {
@@ -207,16 +96,45 @@ function performUnitOfWork(fiber) {
   }
 }
 
+function updateFunctionComponent(fiber) {
+  wipFiber = fiber;
+  hookIndex = 0;
+  wipFiber.hooks = [];
+  const children = [fiber.type(fiber.props)];
+  reconcileChildren(fiber, children);
+}
+
+function updateHostComponent(fiber) {
+  // add dom node
+  if (!fiber.dom) {
+    // 创建fiber对应的DOM
+    fiber.dom = createDom(fiber);
+  }
+  reconcileChildren(fiber, fiber.props.children);
+}
+
+/**
+ * 操作真实DOM 创建真实DOM
+ */
+function createDom(fiber) {
+  const dom = fiber.type === 'TEXT_ELEMENT' ? document.createTextNode('') : document.createElement(fiber.type);
+  // 虚拟DOM 更新 真实DOM
+  updateDom(dom, {}, fiber.props);
+
+  return dom;
+}
+
 // create new fibers
 function reconcileChildren(wipFiber, elements) {
-  console.log('🚀 ~ file: index.jsx ~ line 154 ~ reconcileChildren ~ reconcileChildren');
   let index = 0;
-  let oldFiber = wipFiber.alternate?.child;
+  // let oldFiber = wipFiber.alternate && wipFiber.alternate.child; // null
+  let oldFiber = wipFiber.alternate?.child; // undefined
   let prevSibling = null;
-  while (index < elements.length || oldFiber !== null) {
+
+  while (index < elements.length || oldFiber !== undefined) {
     const element = elements[index];
     let newFiber = null;
-    const sameType = oldFiber && element && element.type === oldFiber.type;
+    const sameType = element?.type === oldFiber?.type;
 
     if (sameType) {
       // update the node
@@ -261,18 +179,176 @@ function reconcileChildren(wipFiber, elements) {
   }
 }
 
+/**
+ * -------------------------------- 提交改变 --------------------------------
+ */
+function commitRoot() {
+  deletions.forEach(commitWork);
+  commitWork(wipRoot.child);
+
+  currentRoot = wipRoot;
+  wipRoot = null;
+}
+
+/**
+ * 操作真实DOM 添加、更新、删除
+ *
+ * add nodes to dom 递归地将所有节点添加到 dom 上
+ */
+function commitWork(fiber) {
+  if (!fiber) {
+    return;
+  }
+
+  let domParentFiber = fiber.parent;
+  while (!domParentFiber.dom) {
+    domParentFiber = domParentFiber.parent;
+  }
+  const domParent = domParentFiber.dom;
+
+  if (fiber.effectTag === 'PLACEMENT' && fiber.dom !== null) {
+    domParent.appendChild(fiber.dom);
+  } else if (fiber.effectTag === 'UPDATE' && fiber.dom !== null) {
+    updateDom(fiber.dom, fiber.alternate.props, fiber.props);
+  } else if (fiber.effectTag === 'DELETION') {
+    commitDeletion(fiber, domParent);
+  }
+
+  commitWork(fiber.child);
+  commitWork(fiber.sibling);
+}
+
+/**
+ * 操作真实DOM 更新
+ */
+function updateDom(dom, prevProps, nextProps) {
+  // Remove old or changed event listeners
+  Object.keys(prevProps)
+    .filter(isEvent)
+    // 不在nextprops 或者 新的
+    .filter((key) => !(key in nextProps) || isNew(prevProps, nextProps)(key))
+    .forEach((name) => {
+      const eventType = name.toLocaleLowerCase().substring(2);
+      dom.removeEventListener(eventType, prevProps[name]);
+    });
+  // Remove old properties
+  Object.keys(prevProps)
+    .filter(isProperty)
+    // 不在nextprops, 需要去掉的
+    .filter(isGone(nextProps))
+    .forEach((name) => {
+      dom[name] = '';
+    });
+  // Set new or changed properties
+  Object.keys(nextProps)
+    .filter(isProperty)
+    .filter(isNew(prevProps, nextProps))
+    .forEach((name) => {
+      dom[name] = nextProps[name];
+    });
+  // Add event listeners
+  Object.keys(nextProps)
+    .filter(isEvent)
+    .filter(isNew(prevProps, nextProps))
+    .forEach((name) => {
+      const eventType = name.toLowerCase().substring(2);
+      dom.addEventListener(eventType, nextProps[name]);
+    });
+}
+
+const isEvent = (key) => key.startsWith('on');
+const isProperty = (key) => key !== 'children' && !isEvent(key);
+const isNew = (prev, next) => (key) => prev[key] !== next[key];
+const isGone = (next) => (key) => !(key in next);
+
+/**
+ * 操作真实DOM 删除
+ */
+function commitDeletion(fiber, domParent) {
+  if (fiber.dom) {
+    domParent.removeChild(fiber.dom);
+  } else {
+    commitDeletion(fiber.child, domParent);
+  }
+}
+
+/**
+ * -------------------------------- JSX 调用 --------------------------------
+ *
+ * 创建虚拟DOM
+ *
+ */
+function createElement(type, props, ...children) {
+  return {
+    type,
+    props: {
+      ...props,
+      children: children.map((child) => {
+        return typeof child === 'object' ? child : createTextElement(child);
+      }),
+    },
+  };
+}
+
+function createTextElement(text) {
+  return {
+    type: 'TEXT_ELEMENT',
+    props: {
+      nodeValue: text,
+      children: [],
+    },
+  };
+}
+
+/**
+ * -------------------------------- Hooks --------------------------------
+ */
+function useState(initial) {
+  const oldHook = wipFiber?.alternate?.hooks?.[hookIndex];
+  const hook = {
+    state: oldHook?.state ?? initial,
+    queue: [],
+  };
+
+  const actions = oldHook?.queue ?? [];
+  actions.forEach((action) => {
+    hook.state = action(hook.state);
+  });
+
+  const setState = (action) => {
+    hook.queue.push(action);
+    wipRoot = {
+      dom: currentRoot.dom,
+      props: currentRoot.props,
+      alternate: currentRoot,
+    };
+    nextUnitOfWork = wipRoot;
+    deletions = [];
+  };
+
+  wipFiber.hooks.push(hook);
+  hookIndex++;
+  return [hook.state, setState];
+}
+
 const Didact = {
   createElement,
   render,
+  useState,
 };
 
 /** @jsx Didact.createElement */
 const container = document.getElementById('root');
 
+function Counter() {
+  const [state, setState] = Didact.useState(1);
+  return <h1 onClick={() => setState((c) => c + 1)}>Count: {state}</h1>;
+}
+
 const element = (
   <div>
-    <h1>Hello World</h1>
-    <h2>from Didact</h2>
+    <div>123</div>
+    <Counter />
   </div>
 );
 
