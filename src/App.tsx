@@ -1,13 +1,13 @@
 import React from 'react';
-import Header from '@/components/Header';
-import style from './App.css';
+import { useRoutes } from 'react-router-dom';
+import routes from '../config/routes';
 
 const App: React.FC = () => {
+  let element = useRoutes(routes);
   return (
     <div>
-      <Header />
-      <h1 id="title">Zero!Zero!</h1>
-      <h2 className={style.subtitle}>This is a subtitle</h2>
+      <h1>Route Objects Example</h1>
+      {element}
     </div>
   );
 };

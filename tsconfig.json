@@ -8,9 +8,15 @@
     "jsx": "react-jsx", // 指定 jsx 语法 react
     "allowSyntheticDefaultImports": true, // 允许使用类似 import React from 'react' 的语法
     "baseUrl": ".",
+    "moduleResolution": "Node", // TS2792: Cannot find module 'react-router-dom'. Did you mean to set the 'moduleResolution' option to 'node', or to add aliases to the 'paths' option?
     "paths": {
-      "@/*": ["./src/*"]
+      "@/*": [
+        "./src/*"
+      ]
     }
   },
-  "include": ["./src/**/*", "typings.d.ts"]
+  "include": [
+    "./src/**/*",
+    "typings.d.ts"
+  ]
 }
