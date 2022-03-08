@@ -1,5 +1,5 @@
 import type { RouteObject } from 'react-router-dom';
-import Layout from '@/pages/Layout';
+import Layout from '@/components/Layout';
 import Home from '@/pages/Home';
 import Courses from '@/pages/Courses';
 import CoursesIndex from '@/pages/CoursesIndex';

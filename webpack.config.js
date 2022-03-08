@@ -81,8 +81,9 @@ module.exports = {
       directory: path.resolve(__dirname, 'dist'), // 告诉服务器从指定目录中提供静态文件，也即打包后的文件
     },
     port: 2022, // 设置端口
-    open: true, // 自动打开浏览器
+    // open: true, // 自动打开浏览器
     hot: true, // 开启热更新
+    historyApiFallback: true, // 支持BrowserRouter
   },
 
   cache: {
