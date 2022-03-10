@@ -4,12 +4,7 @@ import routes from '../config/routes';
 
 const App: React.FC = () => {
   let element = useRoutes(routes);
-  return (
-    <div>
-      <h1>Route Objects Example</h1>
-      {element}
-    </div>
-  );
+  return element;
 };
 
 export default App;
