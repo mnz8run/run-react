@@ -1,4 +1,5 @@
-import { Link, Outlet } from 'react-router-dom';
+import { Outlet } from 'react-router-dom';
+import Sider from '@/components/Sider';
 import styles from './index.less';
 
 export default function Layout() {
@@ -9,17 +10,7 @@ export default function Layout() {
       </header>
       <section className={`${styles.zeroLayout} ${styles.zeroLayoutHasSider}`}>
         <aside className={styles.zeroLayoutSider}>
-          <ul>
-            <li>
-              <Link to="/">Home</Link>
-            </li>
-            <li>
-              <Link to="/courses">Courses</Link>
-            </li>
-            <li>
-              <Link to="/nothing-here">Nothing Here</Link>
-            </li>
-          </ul>
+          <Sider />
         </aside>
         <main className={styles.zeroLayoutContent}>
           <Outlet />
