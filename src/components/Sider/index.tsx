@@ -25,18 +25,5 @@ export default function Sider() {
   }
   transMenu(routes);
 
-  return (
-    <ul style={{ width: '100%' }}>
-      {routesLi}
-      {/* <li>
-        <Link to="/">Home</Link>
-      </li>
-      <li>
-        <Link to="/courses">Courses</Link>
-      </li>
-      <li>
-        <Link to="/nothing-here">Nothing Here</Link>
-      </li> */}
-    </ul>
-  );
+  return <ul style={{ width: '100%' }}>{routesLi}</ul>;
 }
