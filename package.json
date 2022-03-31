@@ -11,8 +11,8 @@
     "lint": "npm run lint:js && npm run lint:css"
   },
   "dependencies": {
-    "react": "^18.0.0-rc.2",
-    "react-dom": "^18.0.0-rc.2",
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
     "react-router-dom": "^6.2.2"
   },
   "devDependencies": {
