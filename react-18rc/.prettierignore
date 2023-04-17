@@ -1,0 +1,11 @@
+## OS
+.editorconfig
+
+# Ignored suffix
+*.svg
+*.png
+*.log
+*.md
+
+## Built-files
+dist
