@@ -125,3 +125,44 @@ $ git branch -a
 
 `git fetch -a`
 `git merge 18/react18rc --allow-unrelated-histories`
+
+## 对 `react-18rc` 分支 一起做修改的记录
+
+```
+$ git fetch --all
+Fetching own
+remote: Enumerating objects: 50, done.
+remote: Counting objects: 100% (50/50), done.
+remote: Compressing objects: 100% (31/31), done.
+remote: Total 50 (delta 16), reused 48 (delta 16), pack-reused 0
+Unpacking objects: 100% (50/50), 111.59 KiB | 652.00 KiB/s, done.
+From ./feel-react-own
+ * [new branch]      main       -> own/main
+Fetching zero
+remote: Enumerating objects: 83, done.
+remote: Counting objects: 100% (83/83), done.
+remote: Compressing objects: 100% (47/47), done.
+remote: Total 83 (delta 23), reused 81 (delta 23), pack-reused 0
+Unpacking objects: 100% (83/83), 13.78 KiB | 57.00 KiB/s, done.
+From ./feel-react-zero
+ * [new branch]      main       -> zero/main
+ * [new tag]         v1         -> v1
+Fetching 18
+remote: Enumerating objects: 23, done.
+remote: Counting objects: 100% (23/23), done.
+remote: Compressing objects: 100% (16/16), done.
+remote: Total 22 (delta 2), reused 16 (delta 2), pack-reused 0
+Unpacking objects: 100% (22/22), 4.10 KiB | 56.00 KiB/s, done.
+From ./feel-react18
+ * [new branch]      main       -> 18/main
+ * [new branch]      react18rc  -> 18/react18rc
+```
+
+```
+$ git branch -a
+* main
+  remotes/18/main
+  remotes/18/react18rc
+  remotes/own/main
+  remotes/zero/main
+```
