@@ -1,21 +1,20 @@
-import { useState } from 'react';
-import TestContext from './TestContext';
 import './App.css';
 import Parent from './Parent';
 import Borther from './Borther';
 import Child from './Child';
+import ContextWrapper from './ContextWrapper';
 
 function App() {
-  const [count, setCount] = useState(0);
+  console.log('App Component Render');
 
   return (
     <>
-      <TestContext.Provider value={{ count, setCount }}>
+      <ContextWrapper>
         <Parent>
           <Borther />
           <Child />
         </Parent>
-      </TestContext.Provider>
+      </ContextWrapper>
     </>
   );
 }

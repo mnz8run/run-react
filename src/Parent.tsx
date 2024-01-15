@@ -2,13 +2,13 @@
 import { useContext } from 'react';
 import TestContext from './TestContext';
 
-const Parent = ({ children }: any) => {
+const Parent = (props: any) => {
   console.log('Parent Component Render');
   const { setCount } = useContext(TestContext);
   return (
     <div>
       <p>这里是父组件</p>
-      {children}
+      {props?.children}
       <button
         onClick={() => {
           setCount((preCount: number) => ++preCount);
