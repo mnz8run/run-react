@@ -1,30 +1,17 @@
-# React + TypeScript + Vite
+[深入理解 ReactJS:揭示重复渲染现象及其解决方案](https://juejin.cn/post/7251861916146417723)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+[解决 React Context 导致的重复渲染问题](https://www.webfunny.com/blog/post/19)
 
-Currently, two official plugins are available:
+[React 组件性能优化的 15 种方式](https://juejin.cn/post/6984229569473544223)
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+---
 
-## Expanding the ESLint configuration
+[React18 性能优化指南](https://juejin.cn/post/7266984374846685223)
+[React 组件设计之性能优化篇](https://juejin.cn/post/7259781724854534200)
+[React 性能优化](https://juejin.cn/post/7276412839584874515)
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+---
 
-- Configure the top-level `parserOptions` property like this:
+[Re-rendering Components in ReactJS](https://www.geeksforgeeks.org/re-rendering-components-in-reactjs/)
 
-```js
-export default {
-  // other rules...
-  parserOptions: {
-    ecmaVersion: 'latest',
-    sourceType: 'module',
-    project: ['./tsconfig.json', './tsconfig.node.json'],
-    tsconfigRootDir: __dirname,
-  },
-}
-```
-
-- Replace `plugin:@typescript-eslint/recommended` to `plugin:@typescript-eslint/recommended-type-checked` or `plugin:@typescript-eslint/strict-type-checked`
-- Optionally add `plugin:@typescript-eslint/stylistic-type-checked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and add `plugin:react/recommended` & `plugin:react/jsx-runtime` to the `extends` list
+[GeeksforGeeks](https://www.geeksforgeeks.org/)
