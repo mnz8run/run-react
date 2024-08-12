@@ -1,1 +1,10 @@
 packages:
+  - "18"
+  - "18rc"
+  - 'class_component'
+  - 'context'
+  - 'countdown'
+  - 'dynamic_route'
+  - "from_zero_build"
+  - 'strict_mode'
+  - "own_react"
