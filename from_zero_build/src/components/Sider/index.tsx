@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import routes from '../../../config/routes';
 import type { typeMyRoute } from '../../../config/routes';
-import styles from './index.less';
+import styles from './index.module.less';
 
 // 在这使用 routes 就报错 循环引用
 // Uncaught ReferenceError: Cannot access '__WEBPACK_DEFAULT_EXPORT__' before initialization

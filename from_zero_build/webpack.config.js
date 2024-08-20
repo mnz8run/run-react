@@ -50,7 +50,7 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'], // 自动解析确定的扩展
+    extensions: ['.tsx', '.ts', 'jsx', '.js'], // 自动解析确定的扩展
     plugins: [new TsconfigPathsPlugin()], // 将tsconfig中的paths配置同步到webpack中
   },
 
