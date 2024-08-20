@@ -12,6 +12,10 @@
     "paths": {
       "@/*": [
         "./src/*"
+      ],
+      // 不知道这里为什么需要重新指向
+      "react": [
+        "./node_modules/@types/react"
       ]
     }
   },

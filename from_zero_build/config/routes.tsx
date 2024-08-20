@@ -6,20 +6,20 @@ import CoursesIndex from '@/pages/CoursesIndex';
 import Course from '@/pages/Course';
 import NoMatch from '@/pages/NoMatch';
 
-// Í¨¹ı Ä£¿éÀ©Õ¹ ½øĞĞ ½Ó¿ÚºÏ²¢£¬Ìí¼ÓÀàĞÍÊôĞÔ
+// é€šè¿‡ æ¨¡å—æ‰©å±• è¿›è¡Œ æ¥å£åˆå¹¶ï¼Œæ·»åŠ ç±»å‹å±æ€§
 // declare module 'react-router-dom' {
 //   export interface RouteObject {
 //     name?: string;
 //   }
 // }
 
-// À©Õ¹½Ó¿Ú
+// æ‰©å±•æ¥å£
 // interface interfaceMyRoute extends RouteObject {
-//   name?: string; // ĞÂÔö
-//   children?: interfaceMyRoute[]; // ¸²¸Ç
+//   name?: string; // æ–°å¢
+//   children?: interfaceMyRoute[]; // è¦†ç›–
 // }
 
-// Í¨¹ı½»²æÀàĞÍÀ©Õ¹
+// é€šè¿‡äº¤å‰ç±»å‹æ‰©å±•
 export type typeMyRoute = Omit<{ [K in keyof RouteObject]: RouteObject[K] }, 'children'> & {
   name?: string;
   children?: typeMyRoute[];
@@ -49,10 +49,10 @@ const routes: typeMyRoute[] = [
 export default routes;
 
 /**
- * ¼¯ÖĞÅäÖÃÊ½Â·ÓÉ
- * Ïà¶ÔÂ·¾¶£¬»á´Ó src/pages ¿ªÊ¼ÕÒÆğ
- * Èç¹ûÖ¸Ïò src Ä¿Â¼µÄÎÄ¼ş£¬¿ÉÒÔÓÃ @£¬Ò²¿ÉÒÔÓÃ ../
- * ´ıĞø
+ * é›†ä¸­é…ç½®å¼è·¯ç”±
+ * ç›¸å¯¹è·¯å¾„ï¼Œä¼šä» src/pages å¼€å§‹æ‰¾èµ·
+ * å¦‚æœæŒ‡å‘ src ç›®å½•çš„æ–‡ä»¶ï¼Œå¯ä»¥ç”¨ @ï¼Œä¹Ÿå¯ä»¥ç”¨ ../
+ * å¾…ç»­
  */
 // const route = [
 //   {

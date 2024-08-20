@@ -1,6 +1,8 @@
 {
   "name": "run-react",
   "private": "true",
-  "scripts": {},
+  "scripts": {
+    "clear": "sh ./clear.sh"
+  },
   "license": "MIT"
 }

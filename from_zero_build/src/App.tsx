@@ -1,9 +1,9 @@
-import React from 'react';
 import { useRoutes } from 'react-router-dom';
 import routes from '../config/routes';
+import type { RouteObject } from 'react-router-dom';
 
-const App: React.FC = () => {
-  let element = useRoutes(routes);
+const App = () => {
+  let element = useRoutes(routes as RouteObject[]);
   return element;
 };
 

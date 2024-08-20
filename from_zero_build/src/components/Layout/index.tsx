@@ -1,6 +1,6 @@
 import { Outlet } from 'react-router-dom';
 import Sider from '@/components/Sider';
-import styles from './index.less';
+import styles from './index.module.less';
 
 export default function Layout() {
   return (
