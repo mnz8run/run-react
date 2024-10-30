@@ -1,28 +1,25 @@
 {
-  "name": "own_react",
+  "name": "version_18",
   "version": "1.0.0",
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-    "dev": "webpack serve --mode=development",
-    "build": "webpack --mode=production",
+    "start": "webpack serve --mode=development --config ./config/webpack.config.js",
+    "build": "webpack --mode=production --config ./config/webpack.config.js",
     "lint:js": "prettier --write . && eslint **/*",
     "lint:css": "stylelint \"src/**/*.{less,css}\" --config ./.stylelintrc.js --custom-syntax postcss-less --fix",
     "lint": "npm run lint:js && npm run lint:css"
   },
   "dependencies": {
-    "react": "^17.0.2",
-    "react-dom": "^17.0.2"
+    "react": "^18.0.0",
+    "react-dom": "^18.0.0",
+    "react-router-dom": "^6.2.2"
   },
   "devDependencies": {
-    "@babel/core": "^7.17.5",
-    "@babel/preset-env": "^7.16.11",
-    "@babel/preset-react": "^7.16.7",
     "@types/react": "^17.0.39",
     "@types/react-dom": "^17.0.11",
     "@typescript-eslint/eslint-plugin": "^5.12.1",
     "@typescript-eslint/parser": "^5.12.1",
-    "babel-loader": "^8.2.3",
     "css-loader": "^6.6.0",
     "eslint": "^8.9.0",
     "eslint-config-alloy": "^4.5.1",
