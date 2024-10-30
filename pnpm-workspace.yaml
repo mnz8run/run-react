@@ -1,10 +1,14 @@
 packages:
-  - "18"
-  - "18rc"
   - 'class_component'
   - 'context'
   - 'countdown'
-  - 'dynamic_route'
-  - "from_zero_build"
+  - 'from_zero_build'
+  - 'own_react'
   - 'strict_mode'
-  - "own_react"
+  - 'tp_jotai'
+  - 'tp_mobx'
+  - 'tp_react_router'
+  - 'tp_redux'
+  - 'tp_valtio'
+  - 'tp_zustand'
+  - 'version_18'
