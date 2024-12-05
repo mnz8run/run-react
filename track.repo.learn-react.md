@@ -1,5 +1,13 @@
 # multiple repositories in one
 
+多仓库合到一个仓库的操作记录
+
+```
+feel-react18
+feel-react-zero -----> learn-react
+feel-react-own
+```
+
 ## 相关信息
 
 `https://github.com/line126/feel-react18.git`

@@ -1,37 +1,9 @@
-# Farm + React
+# react router
 
-This template should help you start developing using React and TypeScript in Farm.
+react-router-dom
 
-## Setup
+## meta
 
-Install the dependencies:
+farm
 
-```bash
-pnpm install
-```
-
-## Get Started
-
-Start the dev server:
-
-```bash
-pnpm start
-```
-
-Build the app for production:
-
-```bash
-pnpm build
-```
-
-Preview the Production build product:
-
-```bash
-pnpm preview
-```
-
-Clear persistent cache local files
-
-```bash
-pnpm clean
-```
+react-router-dom

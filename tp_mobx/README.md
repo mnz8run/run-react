@@ -1,37 +1,9 @@
-# Farm + React
+# mobx
 
-This template should help you start developing using React and TypeScript in Farm.
+MobX 有两种 React 绑定方式，`mobx-react-lite` 仅支持函数组件，而 `mobx-react` 还支持基于类的组件。
 
-## Setup
+## meta
 
-Install the dependencies:
+farm
 
-```bash
-pnpm install
-```
-
-## Get Started
-
-Start the dev server:
-
-```bash
-pnpm start
-```
-
-Build the app for production:
-
-```bash
-pnpm build
-```
-
-Preview the Production build product:
-
-```bash
-pnpm preview
-```
-
-Clear persistent cache local files
-
-```bash
-pnpm clean
-```
+mobx-react-lite
