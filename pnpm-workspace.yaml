@@ -4,6 +4,7 @@ packages:
   - 'countdown'
   - 'from_zero_build'
   - 'own_react'
+  - 'prove_react_17'
   - 'strict_mode'
   - 'tp_jotai'
   - 'tp_mobx'
@@ -12,3 +13,5 @@ packages:
   - 'tp_valtio'
   - 'tp_zustand'
   - 'version_18'
+
+# tp mean third-party

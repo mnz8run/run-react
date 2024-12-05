@@ -1,17 +1,30 @@
-- some-repo
+# 仓库合并操作
 
-mkdir some-folder
+```
+source a
+source b -----> target
+source c
+```
 
-ls -A | grep -wv '.git\|some-folder' | xargs -t -I '{}' git mv {} some-folder/{}
+- source-repo 所有原仓库要执行的操作
+
+mkdir change-your-folder
+
+ls -A | grep -wv '.git\|change-your-folder' | xargs -t -I '{}' git mv {} change-your-folder/{}
 
 git commit -m "feat: 多仓库合并 目录结构改造"
 
-- target-repo
+- target-repo 目标仓库要执行的操作
 
-git remote add some-shortname ../some-repo
+```
+# execute for each warehouse
+git remote add <some-shortname> <../source-repo>
 
 git fetch --all
 
-git merge some-shortname/main --allow-unrelated-histories
+# execute for each warehouse
+git merge <some-shortname/main> --allow-unrelated-histories
 
-git remote remove some-shortname
+# execute for each warehouse
+git remote remove <some-shortname>
+```

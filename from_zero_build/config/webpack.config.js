@@ -24,7 +24,6 @@ module.exports = {
               modules: {
                 // localIdentName: "[path][name]__[local]--[hash:base64:5]",
                 localIdentName: '[local]___[hash:base64:5]',
-                localsConvention: 'camelCase',
               }, // 设置 css module 来实现模块化
             },
           },
@@ -51,18 +50,18 @@ module.exports = {
     ],
   },
   resolve: {
-    extensions: ['.tsx', '.ts', '.js'], // 自动解析确定的扩展
+    extensions: ['.tsx', '.ts', 'jsx', '.js'], // 自动解析确定的扩展
     plugins: [new TsconfigPathsPlugin()], // 将tsconfig中的paths配置同步到webpack中
   },
 
   plugins: [
     new HtmlWebpackPlugin({
-      template: path.resolve(__dirname, '../src/index.html'), // 模板位置
+      template: path.resolve(__dirname, './src/index.html'), // 模板位置
       filename: 'index.html', // 输出后的文件名，路径是 output.path
       title: 'Zero', // 传给模板的变量
     }),
     new StylelintWebpackPlugin({
-      configFile: path.resolve(__dirname, '../.stylelintrc.js'),
+      configFile: path.resolve(__dirname, './.stylelintrc.js'),
       files: ['src/**/*.{less,css}'],
       customSyntax: 'postcss-less', // 适配 less 语法
       fix: true, // 自动格式化
@@ -73,19 +72,18 @@ module.exports = {
 
   // 出口文件
   output: {
-    path: path.resolve(__dirname, '../dist'),
+    path: path.resolve(__dirname, 'dist'),
     filename: 'bundle.js',
   },
 
   devServer: {
     static: {
-      directory: path.resolve(__dirname, '../dist'), // 告诉服务器从指定目录中提供静态文件，也即打包后的文件
+      directory: path.resolve(__dirname, 'dist'), // 告诉服务器从指定目录中提供静态文件，也即打包后的文件
     },
     port: 2022, // 设置端口
     // open: true, // 自动打开浏览器
     hot: true, // 开启热更新
     historyApiFallback: true, // 支持BrowserRouter
-    compress: true, // Enable gzip compression of generated files.
   },
 
   cache: {
