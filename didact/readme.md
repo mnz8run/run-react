@@ -1,0 +1,6 @@
+[Build your own React](https://pomb.us/build-your-own-react/)
+[Didact](https://github.com/pomber/didact)
+[How to build your own React: Didact 解析](https://mp.weixin.qq.com/s/EL3Qu6SB9pct4d_vF7XVtQ)
+[【译】React 之旅：搭建一个自己的 React](https://juejin.cn/post/7241465246463918140)
+[Sysuke's World](https://www.sysuke.com/)
+[qinsong77](https://github.com/qinsong77)

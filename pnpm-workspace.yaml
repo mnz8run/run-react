@@ -7,6 +7,7 @@ packages:
   - 'prove_react_17_vite'
   - 'prove_react_18_vite'
   - 'prove_react_19_vite'
+  - 'react_continuous'
   - 'strict_mode'
   - 'tp_jotai_farm'
   - 'tp_mobx_farm'
