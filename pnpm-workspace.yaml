@@ -1,5 +1,4 @@
 packages:
-  - 'class_component'
   - 'context'
   - 'countdown'
   - 'from_zero_build'
