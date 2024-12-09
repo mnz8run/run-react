@@ -15,6 +15,5 @@ packages:
   - 'tp_redux_farm'
   - 'tp_valtio_farm'
   - 'tp_zustand_farm'
-  - 'version_18'
 
 # tp mean third-party

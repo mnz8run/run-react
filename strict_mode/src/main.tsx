@@ -1,10 +1,14 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import App from './App.tsx'
-import './index.css'
+import { StrictMode } from 'react';
+import { createRoot } from 'react-dom/client';
+import { StrictModeTest } from './pages/StrictModeTest';
 
-ReactDOM.createRoot(document.getElementById('root')!).render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-)
+const container = document.getElementById('root')!;
+const root = createRoot(container);
+const children = (
+  <StrictMode>
+    <>strict mode</>
+    <StrictModeTest />
+  </StrictMode>
+);
+
+root.render(children);
