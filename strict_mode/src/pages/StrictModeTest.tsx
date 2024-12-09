@@ -19,10 +19,15 @@ function Exception() {
   useEffect(() => {
     function drawCanvas(parentNode: HTMLElement | null) {
       const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
       canvas.width = 70;
       canvas.height = 30;
-      context?.fillRect(10, 10, 100, 100);
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.strokeRect(0, 0, 70, 30);
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('C 1', 35, 15);
+      }
       parentNode?.appendChild(canvas);
       return canvas;
     }
@@ -33,6 +38,9 @@ function Exception() {
   return <div ref={parentRef}></div>;
 }
 
+/**
+ * 增加 cleanup
+ */
 function FixWay1() {
   // vite 热更新会执行 useEffect
   const parentRef = useRef<HTMLDivElement>(null);
@@ -40,10 +48,15 @@ function FixWay1() {
   useEffect(() => {
     function drawCanvas(parentNode: HTMLElement | null) {
       const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
       canvas.width = 70;
       canvas.height = 30;
-      context?.fillRect(10, 10, 100, 100);
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.strokeRect(0, 0, 70, 30);
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('C 1', 35, 15);
+      }
       parentNode?.appendChild(canvas);
       return canvas;
     }
@@ -59,6 +72,9 @@ function FixWay1() {
   return <div ref={parentRef}></div>;
 }
 
+/**
+ * 只在第一次加载执行
+ */
 function FixWay2() {
   // vite 热更新会执行 useEffect
   const firstRun = useRef(true);
@@ -67,10 +83,15 @@ function FixWay2() {
   useEffect(() => {
     function drawCanvas(parentNode: HTMLElement | null) {
       const canvas = document.createElement('canvas');
-      const context = canvas.getContext('2d');
       canvas.width = 70;
       canvas.height = 30;
-      context?.fillRect(10, 10, 100, 100);
+      const context = canvas.getContext('2d');
+      if (context) {
+        context.strokeRect(0, 0, 70, 30);
+        context.textAlign = 'center';
+        context.textBaseline = 'middle';
+        context.fillText('C 1', 35, 15);
+      }
       parentNode?.appendChild(canvas);
       return canvas;
     }
@@ -84,15 +105,22 @@ function FixWay2() {
   return <div ref={parentRef}></div>;
 }
 
+/**
+ * callback ref
+ */
 function FixWay3() {
-  // callback ref
   // vite 热更新会增加 canvas
   const drawCallBack = useCallback((target: HTMLDivElement) => {
     const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
     canvas.width = 70;
     canvas.height = 30;
-    ctx?.fillRect(10, 10, 100, 100);
+    const ctx = canvas.getContext('2d');
+    if (ctx) {
+      ctx.strokeRect(0, 0, 70, 30);
+      ctx.textAlign = 'center';
+      ctx.textBaseline = 'middle';
+      ctx.fillText('C 1', 35, 15);
+    }
     target?.appendChild(canvas);
   }, []);
 
