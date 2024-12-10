@@ -1,4 +1,8 @@
-module.exports = {
+/**
+ * @see https://prettier.io/docs/en/configuration.html
+ * @type {import("prettier").Config}
+ */
+const config = {
   printWidth: 120, // 一行最多 120 字符
   tabWidth: 2, // 使用 2 个空格缩进
   useTabs: false, // 不使用缩进符，而使用空格
@@ -19,3 +23,5 @@ module.exports = {
   endOfLine: 'lf', // 换行符使用 lf
   embeddedLanguageFormatting: 'auto', // 格式化内嵌代码
 };
+
+export default config;

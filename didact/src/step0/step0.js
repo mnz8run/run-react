@@ -11,8 +11,8 @@ const element = {
   type: 'h1',
   props: {
     title: 'foo',
-    children: 'Hello'
-  }
+    children: 'Hello',
+  },
 };
 const container = document.getElementById('root');
 
