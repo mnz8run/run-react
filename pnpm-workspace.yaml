@@ -1,7 +1,7 @@
 packages:
   - 'context'
+  - 'didact'
   - 'from_zero_build'
-  - 'own_react'
   - 'prove_react_17_vite'
   - 'prove_react_18_vite'
   - 'prove_react_19_vite'

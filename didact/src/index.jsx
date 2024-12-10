@@ -352,4 +352,5 @@ const element = (
   </div>
 );
 
+// eslint-disable-next-line react/no-deprecated
 Didact.render(element, container);
