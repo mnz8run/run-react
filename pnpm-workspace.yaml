@@ -15,6 +15,5 @@ packages:
   - 'tp_react_router_farm'
   - 'tp_react_scan'
   - 'tp_redux_farm'
-  - 'tp_styled_components_vite'
   - 'tp_valtio_farm'
   - 'tp_zustand_farm'
