@@ -1,3 +1,5 @@
+# tp mean third-party
+
 packages:
   - 'context'
   - 'didact'
@@ -5,13 +7,14 @@ packages:
   - 'prove_react_17_vite'
   - 'prove_react_18_vite'
   - 'prove_react_19_vite'
+  - 'react_compiler'
   - 'react_continuous'
   - 'strict_mode'
   - 'tp_jotai_farm'
   - 'tp_mobx_farm'
   - 'tp_react_router_farm'
+  - 'tp_react_scan'
   - 'tp_redux_farm'
+  - 'tp_styled_components_vite'
   - 'tp_valtio_farm'
   - 'tp_zustand_farm'
-
-# tp mean third-party
