@@ -14,11 +14,11 @@
   },
   "devDependencies": {
     "@farmfe/cli": "^1.0.4",
-    "@farmfe/core": "^1.4.7",
+    "@farmfe/core": "^1.6.2",
     "@farmfe/plugin-react": "^1.2.6",
     "@types/react": "18",
     "@types/react-dom": "18",
     "core-js": "^3.39.0",
-    "react-refresh": "^0.14.2"
+    "react-refresh": "^0.16.0"
   }
 }
