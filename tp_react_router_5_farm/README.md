@@ -1,6 +1,6 @@
 # react router
 
-react-router-dom
+react-router-dom 5 版本
 
 ## meta
 
@@ -15,3 +15,7 @@ react-router-dom
 4 - 6 安装 react-router-dom
 
 7 安装 react-router
+
+## RouteComponentProps
+
+RouteComponentProps 存在于 4 - 6 版本，7 中彻底删除
