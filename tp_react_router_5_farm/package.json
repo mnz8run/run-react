@@ -1,0 +1,26 @@
+{
+  "name": "tp_react_router_5_farm",
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "farm start",
+    "start": "farm start",
+    "build": "farm build",
+    "preview": "farm preview",
+    "clean": "farm clean"
+  },
+  "dependencies": {
+    "react": "18",
+    "react-dom": "18",
+    "react-router-dom": "^5.3.4"
+  },
+  "devDependencies": {
+    "@farmfe/cli": "^1.0.5",
+    "@farmfe/core": "^1.7.7",
+    "@farmfe/plugin-react": "^1.2.6",
+    "@types/react": "18",
+    "@types/react-dom": "18",
+    "@types/react-router-dom": "^5.3.3",
+    "core-js": "^3.43.0",
+    "react-refresh": "^0.17.0"
+  }
+}

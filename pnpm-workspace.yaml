@@ -13,6 +13,7 @@ packages:
   - 'tp_jotai_farm'
   - 'tp_mobx_farm'
   - 'tp_react_router_farm'
+  - 'tp_react_router_5_farm'
   - 'tp_react_scan'
   - 'tp_redux_farm'
   - 'tp_valtio_farm'
