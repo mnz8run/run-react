@@ -1,5 +1,5 @@
 {
-  "name": "tp_react_router_5_farm",
+  "name": "tp_redux_toolkit_farm",
   "version": "1.0.0",
   "scripts": {
     "dev": "farm start",
@@ -9,9 +9,9 @@
     "clean": "farm clean"
   },
   "dependencies": {
+    "@reduxjs/toolkit": "^2.8.2",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "react-router-dom": "^5.3.4"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@farmfe/cli": "^1.0.5",
@@ -19,7 +19,6 @@
     "@farmfe/plugin-react": "^1.2.6",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
-    "@types/react-router-dom": "^5.3.3",
     "core-js": "^3.44.0",
     "react-refresh": "^0.17.0"
   }
