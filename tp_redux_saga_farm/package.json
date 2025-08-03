@@ -1,5 +1,5 @@
 {
-  "name": "tp_react_router_5_farm",
+  "name": "tp_redux_saga_farm",
   "version": "1.0.0",
   "scripts": {
     "dev": "farm start",
@@ -11,7 +11,7 @@
   "dependencies": {
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "react-router-dom": "^5.3.4"
+    "redux-saga": "^1.3.0"
   },
   "devDependencies": {
     "@farmfe/cli": "^1.0.5",
@@ -19,7 +19,6 @@
     "@farmfe/plugin-react": "^1.2.6",
     "@types/react": "^18.3.23",
     "@types/react-dom": "^18.3.7",
-    "@types/react-router-dom": "^5.3.3",
     "core-js": "^3.44.0",
     "react-refresh": "^0.17.0"
   }
