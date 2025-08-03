@@ -7,10 +7,10 @@ const counterSlice = createSlice({
   },
   reducers: {
     incremented: (state) => {
-      // Redux Toolkit allows us to write "mutating" logic in reducers. It
-      // doesn't actually mutate the state because it uses the Immer library,
-      // which detects changes to a "draft state" and produces a brand new
-      // immutable state based off those changes
+      // Redux Toolkit 允许我们在 Reducer 中编写“可变”逻辑。它
+      // 实际上并不会改变状态，因为它使用了 Immer 库，
+      // 该库会检测“草稿状态”的变更，并基于这些变更生成一个全新的
+      // 不可变状态
       state.value += 1;
     },
     decremented: (state) => {
@@ -25,10 +25,10 @@ const store = configureStore({
   reducer: counterSlice.reducer,
 });
 
-// Can still subscribe to the store
+// 仍然可以订阅商店
 store.subscribe(() => console.log(store.getState()));
 
-// Still pass action objects to `dispatch`, but they're created for us
+// 仍然将动作对象传递给 `dispatch`，但它们是为我们创建的
 store.dispatch(incremented());
 // {value: 1}
 store.dispatch(incremented());
