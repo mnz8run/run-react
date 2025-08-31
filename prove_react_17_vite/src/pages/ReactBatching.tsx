@@ -4,21 +4,19 @@ import { useState } from 'react';
 export function ReactBatching() {
   const [count, setCount] = useState(0);
   const [flag, setFlag] = useState(false);
-
-  // 整个 onClick 17 执行三次
-  // Total 17: thrice
-  //       18: twice
   function handleClick() {
-    // re-render once
+    // 这里 setCount, setFlag 合成一次 re-render
     setCount((c) => c + 1);
     setFlag((f) => !f);
     setTimeout(() => {
-      // 17 这里会重新渲染两次
+      // 17 setCount, setFlag 各一次 re-render, 18 后就合成一次了
       setCount((c) => c + 1);
       setFlag((f) => !f);
     });
   }
-
+  // 17: thrice re-render
+  // 18: twice  re-render
+  console.log('AQUILA re-render');
   return (
     <div>
       <button onClick={handleClick}>Next</button>
