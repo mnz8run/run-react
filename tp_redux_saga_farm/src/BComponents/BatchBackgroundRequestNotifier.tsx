@@ -1,7 +1,7 @@
 import prettyBytes from 'pretty-bytes';
 import { useEffect, useCallback, useRef, useState } from 'react';
 import { Button, notification, Popconfirm, Progress, Tooltip } from 'antd';
-import { ArrowsAltOutlined, CloseOutlined, ShrinkOutlined } from '@ant-design/icons';
+import { ArrowsAltOutlined, CheckCircleFilled, CloseCircleFilled, CloseOutlined, ShrinkOutlined } from '@ant-design/icons';
 import { useAppDispatch, useAppSelector } from '@/store/hooks';
 import { batchBackgroundRequestActions } from '@/store/reducers/batchBackgroundRequestSlice';
 import type { RequestItem } from '@/store/reducers/batchBackgroundRequestSlice';
@@ -10,11 +10,10 @@ const { cancelBatch, cancelUpload, removeBatch, retryUpload, toggleBatchMinimiza
 
 export function BatchBackgroundRequestNotifier() {
   const batches = useAppSelector((state) => state?.batchBackgroundRequest?.batches);
-  console.log('AQUILA 6E3EBF6078274B0A975852FEC856E491 batches', batches);
   const dispatch = useAppDispatch();
   const activeNotifications = useRef<Set<string>>(new Set());
   const [api, contextHolder] = notification.useNotification({
-    // 不关闭，会触发循环依赖的问题
+    // 不关闭，会触发循环依赖的问题(notification 内部)
     stack: false,
   });
   const getContent = useCallback(
@@ -44,6 +43,12 @@ export function BatchBackgroundRequestNotifier() {
   useEffect(() => {
     const currentBatchIds = new Set(batches.map((b) => b.id));
 
+    /**
+     * 关闭已不存在批次的通知，这是原本的作用。
+     *
+     * 点击窗口关闭按钮，不需要 destroy 是因为这里，
+     * batches 会更新数据，useEffect 依赖项变更触发这里。巧合。
+     */
     activeNotifications.current.forEach((batchId) => {
       if (!currentBatchIds.has(batchId)) {
         api.destroy(batchId);
@@ -51,6 +56,7 @@ export function BatchBackgroundRequestNotifier() {
       }
     });
 
+    // 打开或更新当前批次的通知
     batches.forEach((batch) => {
       const { id: batchId, requestArray, minimized: isMinimized, afterSuccess: batchAfterSuccess, windowTitle, inPendingAndUploadingPopconfirmTitle } = batch;
 
@@ -79,7 +85,6 @@ export function BatchBackgroundRequestNotifier() {
         className: 'batchBackgroundRequestNotifier',
         style: {
           padding: 0,
-          width: isMinimized ? 250 : 500,
         },
       });
 
@@ -102,7 +107,6 @@ interface NotificationDescriptionProps {
   inPendingAndUploadingPopconfirmTitle?: string;
 }
 
-const progressNotShowInfoSet = new Set(['pending', 'uploading']);
 const showPopconfirmSet = new Set(['pending', 'uploading']);
 
 function NotificationDescription(props: NotificationDescriptionProps) {
@@ -111,7 +115,6 @@ function NotificationDescription(props: NotificationDescriptionProps) {
   const requestArrayTotal = requestArray.length;
   const confirm = () => {
     setOpenPopconfirm(false);
-    // api.destroy(batchId);
     onClose?.();
   };
   const cancel = () => {
@@ -136,8 +139,6 @@ function NotificationDescription(props: NotificationDescriptionProps) {
     switch (status) {
       case 'pending':
       case 'uploading':
-      case 'success':
-      case 'error':
         return (
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             {typeof total === 'number' ? (
@@ -146,21 +147,20 @@ function NotificationDescription(props: NotificationDescriptionProps) {
               </span>
             ) : null}
             {status === 'pending' ? <span style={{ fontSize: '12px', color: 'var(--ant-color-text-secondary)' }}>等待上传</span> : null}
+            <Progress percent={item.progress.percent} type="circle" showInfo={false} size={20} />
+          </div>
+        );
+      case 'success':
+        return <CheckCircleFilled style={{ color: 'var(--ant-color-success)' }} />;
+      case 'error':
+        return (
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
             <Tooltip title={item?.error} placement="left" getPopupContainer={(triggerNode) => triggerNode}>
-              <Progress
-                percent={item.progress.percent}
-                status={status === 'error' ? 'exception' : undefined}
-                type="circle"
-                showInfo={progressNotShowInfoSet.has(status) ? false : true}
-                strokeWidth={18}
-                size={20}
-              />
+              <CloseCircleFilled style={{ color: 'var(--ant-color-error)' }} />
             </Tooltip>
-            {status === 'error' ? (
-              <Button onClick={() => handleRetry(item.id)} type="link">
-                点击重试
-              </Button>
-            ) : null}
+            <Button onClick={() => handleRetry(item.id)} type="link" size="small" style={{ padding: 0 }}>
+              点击重试
+            </Button>
           </div>
         );
       case 'cancelled':
@@ -190,7 +190,8 @@ function NotificationDescription(props: NotificationDescriptionProps) {
                 dispatch?.(toggleBatchMinimization({ batchId }));
               }}
               type="text"
-              style={{ color: 'var(--ant-color-icon)' }}
+              size="small"
+              style={{ padding: 0, color: 'var(--ant-color-icon)' }}
               icon={isMinimized ? <ArrowsAltOutlined /> : <ShrinkOutlined />}
             />
             <Popconfirm
@@ -200,9 +201,13 @@ function NotificationDescription(props: NotificationDescriptionProps) {
               onConfirm={confirm}
               onCancel={cancel}
               placement="left"
+              // 会触发 button 标签嵌套的提示
               getPopupContainer={(triggerNode) => triggerNode}
             >
-              <CloseOutlined style={{ color: 'var(--ant-color-icon)' }} />
+              {/* 加 span 标签，防止触发 button 标签嵌套 */}
+              <span>
+                <Button type="text" size="small" style={{ padding: 0, color: 'var(--ant-color-icon)' }} icon={<CloseOutlined />} />
+              </span>
             </Popconfirm>
           </div>
         </div>
@@ -227,10 +232,10 @@ function NotificationDescription(props: NotificationDescriptionProps) {
           <div style={{ minWidth: 0, flex: 1, textOverflow: 'ellipsis', overflow: 'hidden', whiteSpace: 'nowrap' }} title={item?.itemTitle}>
             {item?.itemTitle}
           </div>
-          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center' }}>
+          <div style={{ flexShrink: 0, display: 'flex', alignItems: 'center', gap: '8px' }}>
             {renderStatus(item)}
             {(item.status === 'pending' || item.status === 'uploading') && (
-              <Button onClick={() => handleCancel(item.id)} type="link">
+              <Button onClick={() => handleCancel(item.id)} type="link" size="small" style={{ padding: 0 }}>
                 取消上传
               </Button>
             )}

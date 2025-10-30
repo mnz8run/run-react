@@ -2,8 +2,8 @@ import { Button } from 'antd';
 import { useRef } from 'react';
 import { v4 as uuidv4 } from 'uuid';
 import { UploadOutlined } from '@ant-design/icons';
-import { uploadFile } from '@/services';
 import { useAppDispatch } from '@/store/hooks';
+import { nsStore } from '@/store/nonSerializableStore';
 import { batchBackgroundRequestActions } from '@/store/reducers/batchBackgroundRequestSlice';
 import type { RequestItem } from '@/store/reducers/batchBackgroundRequestSlice';
 
@@ -19,11 +19,12 @@ export function UploadBatchButton() {
     if (files) {
       const requestArray: RequestItem[] = [];
       for (let i = 0; i < files.length; i++) {
+        const id = uuidv4();
         const file = files[i];
+        nsStore.setFile(id, file);
         requestArray.push({
-          id: uuidv4(),
-          api: uploadFile,
-          apiParmas: [file],
+          id,
+          apiKey: 'uploadFile',
           status: 'pending',
           progress: { percent: 0 },
           batchId,

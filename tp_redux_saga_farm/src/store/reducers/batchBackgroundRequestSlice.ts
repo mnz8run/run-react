@@ -1,9 +1,6 @@
 import { createSlice } from '@reduxjs/toolkit';
+import { nsStore } from '../nonSerializableStore';
 import type { PayloadAction, Draft } from '@reduxjs/toolkit';
-
-export interface Api {
-  (...args: any[]): Promise<any>;
-}
 
 export interface ProgressInfo {
   percent: number;
@@ -14,8 +11,8 @@ export interface ProgressInfo {
 export interface RequestItem {
   id: string;
   batchId: string;
-  api: Api;
-  apiParmas: any[];
+  apiKey: string;
+  apiParmas?: any[];
   progress: ProgressInfo;
   status: 'pending' | 'uploading' | 'success' | 'error' | 'cancelled';
   error?: string;
@@ -41,6 +38,7 @@ const initialState: BatchBackgroundRequestState = {
   batches: [],
 };
 
+// 用于在所有批次中更新 RequestItem 的辅助函数
 const updateRequestItemInBatches = (state: Draft<BatchBackgroundRequestState>, requestItemId: string, update: Partial<RequestItem>) => {
   state.batches.forEach((batch) => {
     const requestItemIndex = batch.requestArray.findIndex((ri) => ri.id === requestItemId);
@@ -62,7 +60,7 @@ const batchBackgroundRequestSlice = createSlice({
   reducers: {
     addBatch: (state, action: PayloadAction<Omit<Batch, 'minimized'>>) => {
       const newBatch: Batch = {
-        minimized: false,
+        minimized: false, // 默认为未最小化
         ...action.payload,
       };
       state.batches.push(newBatch);
@@ -73,7 +71,7 @@ const batchBackgroundRequestSlice = createSlice({
     },
     setUploadStatus: (state, action: PayloadAction<SharedPayload & Pick<RequestItem, 'status' | 'error'>>) => {
       const { requestItemId, error, status } = action.payload;
-      updateRequestItemInBatches(state, requestItemId, { error, status });
+      updateRequestItemInBatches(state, requestItemId, { status, error });
     },
     retryUpload: (state, action: PayloadAction<SharedPayload>) => {
       const { requestItemId } = action.payload;
@@ -88,6 +86,7 @@ const batchBackgroundRequestSlice = createSlice({
       updateRequestItemInBatches(state, requestItemId, {
         status: 'cancelled',
       });
+      nsStore.deleteFile(requestItemId);
     },
     cancelBatch: (state, action: PayloadAction<{ batchId: string }>) => {
       const { batchId } = action.payload;

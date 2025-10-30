@@ -1,16 +1,32 @@
 import axios from 'axios';
 import { channel, END, eventChannel } from 'redux-saga';
 import { all, call, cancel, cancelled, fork, join, put, race, select, take } from 'redux-saga/effects';
+import { uploadFile } from '@/services';
+import { nsStore } from '../nonSerializableStore';
 import { batchBackgroundRequestActions } from '../reducers/batchBackgroundRequestSlice';
 import type { AnyAction, Channel, Task } from 'redux-saga';
 import type { RootState } from '../reducers';
-import type { Api, Batch, ProgressInfo, RequestItem } from '../reducers/batchBackgroundRequestSlice';
+import type { Batch, ProgressInfo, RequestItem } from '../reducers/batchBackgroundRequestSlice';
+
+interface Api {
+  (...args: any[]): Promise<any>;
+}
+
+/** 
+## Redux 不建议存储不可序列化数据
+Redux 要求状态可序列化，主要原因：
+- 时间旅行调试：Redux DevTools 需要序列化状态
+- 状态持久化：需要将状态保存到 localStorage
+- 服务端渲染：需要在服务器和客户端之间传递状态
+- 可预测性：序列化数据更容易追踪和调试
+ */
+const apiMap: Record<string, Api> = { uploadFile };
 
 const MAX_CONCURRENT_REQUESTS = 3;
 
 const { setUploadStatus, updateUploadProgress, cancelUpload, cancelBatch, addBatch, retryUpload } = batchBackgroundRequestActions;
 
-function* runApi(api: Api, apiParmas: any[], onProgress: (progress: ProgressInfo) => void) {
+function* runApi(api: Api, onProgress: (progress: ProgressInfo) => void, apiParmas?: any[]) {
   const source = axios.CancelToken.source();
   const chan = eventChannel<ProgressInfo | Error>((emitter) => {
     const config = {
@@ -23,7 +39,7 @@ function* runApi(api: Api, apiParmas: any[], onProgress: (progress: ProgressInfo
       cancelToken: source.token,
     };
 
-    api(...apiParmas, config)
+    api(...(apiParmas ?? []), config)
       .then(() => {
         emitter({ percent: 100 });
         emitter(END);
@@ -60,27 +76,40 @@ function* runApi(api: Api, apiParmas: any[], onProgress: (progress: ProgressInfo
 
 function* runApiSaga(requestItem: RequestItem) {
   let requestTask: Task | null = null;
+  const apiKey = requestItem.apiKey;
+  const api = apiMap?.[apiKey];
+  if (!api) {
+    throw new Error('Task failed to find the API.');
+  }
   try {
-    yield put(setUploadStatus({ requestItemId: requestItem.id, status: 'uploading' }));
+    const requestItemId = requestItem.id;
+    yield put(setUploadStatus({ requestItemId: requestItemId, status: 'uploading' }));
+    const file = nsStore.getFile(requestItemId);
 
-    requestTask = yield fork(runApi, requestItem.api, requestItem.apiParmas, function* (progress: ProgressInfo) {
-      yield put(updateUploadProgress({ progress, requestItemId: requestItem.id }));
-    });
+    requestTask = yield fork(
+      runApi,
+      api,
+      function* (progress: ProgressInfo) {
+        yield put(updateUploadProgress({ progress, requestItemId }));
+      },
+      [...(file ? [file] : []), ...(requestItem.apiParmas ?? [])]
+    );
 
     if (!requestTask) {
-      throw new Error('Upload task failed to fork.');
+      throw new Error('Task failed to fork.');
     }
 
     const { cancelSignal } = yield race({
       taskResult: join(requestTask),
-      cancelSignal: take((action: AnyAction) => action.type === cancelUpload.type && action.payload.requestItemId === requestItem.id),
+      cancelSignal: take((action: AnyAction) => action.type === cancelUpload.type && action.payload.requestItemId === requestItemId),
     });
 
     if (cancelSignal) {
       yield cancel(requestTask);
     } else {
-      yield put(setUploadStatus({ requestItemId: requestItem.id, status: 'success' }));
+      yield put(setUploadStatus({ requestItemId, status: 'success' }));
       requestItem?.afterSuccess?.();
+      nsStore.deleteFile(requestItemId);
     }
   } finally {
     const wasCancelled: boolean = yield cancelled();
@@ -131,6 +160,7 @@ function* watchCancelBatch() {
     });
 
     if (batchToCancel) {
+      // 取消批次，清除对应 nsStore 的数据，是这里触发的，巧合。
       yield all(batchToCancel.requestArray.map((requestItem) => put(cancelUpload({ requestItemId: requestItem.id }))));
     }
   }
@@ -173,7 +203,7 @@ export function* watchBatchBackgroundRequest() {
   // 创建通道（空的），先进先出的任务队列
   const requestChannel: Channel<RequestItem> = yield call(channel);
 
-  // 创建 MAX_CONCURRENT_UPLOADS 个 worker
+  // 创建 MAX_CONCURRENT_REQUESTS 个 worker
   for (let i = 0; i < MAX_CONCURRENT_REQUESTS; i++) {
     yield fork(worker, requestChannel);
   }
